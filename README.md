@@ -18,7 +18,7 @@ path = 'C:/Users/User/Folder/Archivo.dat'
 ```
 
 ```
-datos = np.fromfile(path, "\n")
+datos = np.fromfile(path, sep="\n")
 ```
 
 
@@ -42,7 +42,7 @@ path = 'C:/Users/User/Folder/Archivo.dat'
 ```
 
 ```
-datos = np.fromfile(path, "\n")
+datos = np.fromfile(path, sep="\n")
 ```
 
 
