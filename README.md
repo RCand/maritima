@@ -22,7 +22,7 @@ path = 'C:/Users/User/Folder/Archivo.dat'
 ```
 
 ```
-datos = np.fromfile(path, "\n")
+datos = np.fromfile(path, sep="\n")
 ```
 # Regimen_medio_y_extremal.py
 
@@ -49,7 +49,7 @@ path = 'C:/Users/User/Folder/Archivo.dat'
 ```
 
 ```
-datos = np.fromfile(path, "\n")
+datos = np.fromfile(path, sep="\n")
 ```
 
 # Extreme Values Analysis 
