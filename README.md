@@ -1,4 +1,12 @@
-# General
+# Descripción general
+Hay aquí unas herramientas utiles para:
+  * el análisis de las mareas astronomicas (Analisis_armonico.py) y la predicción de las mismas.
+  * la análisis espectral de una serie temporal de medidas de elevación (Espectro.py).  
+  * la creación del estado de mar y el calculo de sus vaolers statisticos a partir de una serie temporal de medidas de elevación (Estado_de_mar.py).  
+  * el análisis del régimen medio y extremal de un estado de mar (Regimen_medio_y_extremal.py). 
+
+Estas herramientas han sido desarolladas a lo largo del curso de Ingeniería Marítima y Costera en la E.T.S.I.C.C.P. en la Universidad de Granada, en el año académico 2015/16.
+
 ## Descargar git
 Es necesario descargar git para instalar los requirements.txt
 [http://git-scm.com/downloads]
