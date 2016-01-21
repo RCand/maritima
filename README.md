@@ -1,8 +1,12 @@
-# Analisis Extremal
+# General
+## Descargar git
+Es necesario descargar git para instalar los requirements.txt
+[http://git-scm.com/downloads]
+
 ## Instalar los modulos necesarios
 En linux, abrir un terminal y escribir:
 ```
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ``` 
 
 ## Inerir datos y parametros
@@ -20,13 +24,16 @@ path = 'C:/Users/User/Folder/Archivo.dat'
 ```
 datos = np.fromfile(path, "\n")
 ```
+# Regimen_medio_y_extremal.py
 
 
-# Extreme Values Analysis 
+# General
+Download git, it is necessary to install requirements.txt
+[http://git-scm.com/downloads]
 ## Installing requested packages
 In Linux, open a terminal and type:
 ```
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ``` 
 
 
@@ -45,4 +52,5 @@ path = 'C:/Users/User/Folder/Archivo.dat'
 datos = np.fromfile(path, "\n")
 ```
 
+# Extreme Values Analysis 
 
