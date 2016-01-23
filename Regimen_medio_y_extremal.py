@@ -1,6 +1,7 @@
 from __future__ import division
 # (hacer ctrl + clic sobre el nombre del modulo para ver el codigo)
 import numpy as np
+import pandas as pd
 # Para el vector tiempo
 from datetime import datetime
 # Fitting ECDF
@@ -21,15 +22,25 @@ from windrose import WindroseAxes, WindAxes
 __author__ = "Riccardo Candeago, Ugr, E.T.S.I.C.C.P., aa. 2015/16"
 
 ### PARAMETROS A FIJAR ###
-umbral_wei = 0.01  # Probabilidad de EXCEDENCIA para fitting de Weibull a la CDF.
-umbral_GEV = 0.01  # Probabilidad de EXCEDENCIA para fitting de GEV a la CDF.
+umbral_exced_wei = 0.01  # Probabilidad de EXCEDENCIA para fitting de Weibull a la CDF.
+umbral_exced_GEV = 0.01  # Probabilidad de EXCEDENCIA para fitting de GEV a la CDF.
 umbral_picos = 5.  # Umbral sobre el cual los picos vienen representados en el grafico
+umbral_maquinaria = 0.  # Umbral sobre el cual la maquinaria no puede trabajar.
+K_s = 0.9944  # Coeficiente de asomeramiento.
+K_R = 0.9096  # Coeficiente de refraccion.
 ##########################
 
-# Lectura archivo .dat y creacion array
-path = 'WANA_T_2020013 Motril 2 mod.dat'  # Path para el archivo .dat
-# (en Windows, es del tipo 'C:/Users/User/Folder/Archivo.dat')
-datos = np.fromfile(path, sep="\n")
+# Lectura archivo .dat y creacion dataframe
+# path = 'WANA_T_2020013 Motril 2 mod.dat'  # Path para el archivo .dat
+path = 'SIMAR_1052048_corto.dat'
+df = pd.read_table(path, delim_whitespace=True, parse_dates={'fecha': [0, 1, 2, 3]},\
+                  keep_date_col=True, skiprows=78, skip_blank_lines=True)
+
+
+# # Lectura archivo .dat y creacion array
+# # path = 'WANA_T_2020013 Motril 2 mod.dat'  # Path para el archivo .dat
+# path = 'SIMAR_1052048.dat'
+# datos = np.fromfile(path, sep="\n")
 '''
 Para crear el array con el que se trabajará, se utiliza np.fromfile(file, dtype=float, count=-1, sep='').
 Ya tenemos el *file*, que es dado del path, el *dtype* en este caso es ya *float* por default (numeros reales),
@@ -60,30 +71,31 @@ el *sep* es el separador, en este caso "\n", el "línea nueva".
  DirV   : Direccion Media de PROCEDENCIA del Viento      (0=N,90=E)
 '''
 
-# Fechas  AA MM DD HH. Para crear el formato datetime se necesitan numeros int, no float, y por eso se
-# hace la conversion con el metodo .astype(int)
-AA = datos[0::18].astype(int)
-MM = datos[1::18].astype(int)
-DD = datos[2::18].astype(int)
-HH = datos[3::18].astype(int)
+# # Fechas  AA MM DD HH. Para crear el formato datetime se necesitan numeros int, no float, y por eso se
+# # hace la conversion con el metodo .astype(int)
+# AA = datos[0::18].astype(int)
+# MM = datos[1::18].astype(int)
+# DD = datos[2::18].astype(int)
+# HH = datos[3::18].astype(int)
 
 # Se crea el array t, utilizando datetime. El formato es: 1996-01-14 06:00:00
 # Transformo la lista en array de NumPy porque la necesito para hacer la mascara booleana
 # en Hm0[(t >= t_ini) & (t < t_fin) & (t_fin <= t_ultimo)]
-t = np.array([datetime(AA[i], MM[i], DD[i], HH[i]) for i in range(len(AA))])
+# t = np.array([datetime(AA[i], MM[i], DD[i], HH[i]) for i in range(len(AA))])
 
 # Cargar otros parametros.
-Hm0_sin_alfa = datos[4::18]
+# Hm0_sin_alfa = datos[4::18]
 
 # Factor alfa, que multiplica las alturas ola.
 alfa = ((23 + 16 + 16 + 9 + 27) / 5) ** (1 / 7)
 
 # Multiplicamos por alfa las alturas de ola.
-Hm0 = alfa * Hm0_sin_alfa
+# s['Hm0'] = s['Hm0']*alfa
+# Hm0 = alfa * Hm0_sin_alfa
 
-DirM = datos[7::18]
-VelV = datos[16::18]
-DirV = datos[17::18]
+# DirM = datos[7::18]
+# VelV = datos[16::18]
+# DirV = datos[17::18]
 
 # No hace falta de estos parametros
 # Tm02 = datos[5::18]
@@ -125,18 +137,20 @@ Example
 de [http://stackoverflow.com/questions/4624970/finding-local-maxima-minima-with-numpy-in-a-1d-numpy-array]
 '''
 # Para los maximos locales
-indice_picos = argrelextrema(Hm0, np.greater, order=5)
-H_picos = Hm0[indice_picos]
+# Para acceder al valor de una columna del dataframe de pandas, hacer df.nombrecolumna.values
+indice_picos = argrelextrema(df.Hm0.values, np.greater, order=5)
+H_picos = df.Hm0.values[indice_picos]
 # Para encontrar la fecha correspondiente
-t_picos = t[indice_picos]
+t_picos = df.fecha.values[indice_picos]
 
 # Para los minimos locales
-indice_minimos = argrelextrema(Hm0, np.less, order=5)
-H_minimos = Hm0[indice_minimos]
-t_minimos = t[indice_minimos]
+indice_minimos = argrelextrema(df.Hm0.values, np.less, order=5)
+H_minimos = df.Hm0.values[indice_minimos]
+t_minimos = df.fecha.values[indice_minimos]
 
 # Numero de anos: final (el elemento [-1] es el ultimo) menos el inicial
-numoyears = AA[-1] - AA[0]
+# Como se encuentra el ultimo anio? He utilizado tail(1)
+numoyears = df['fecha'].tail(1).dt.year.values[0] - df['fecha'].dt.year[0]
 
 # Se crean dos listas que van a contener los maximos annuales y su fecha.
 H_annuales = []
@@ -162,9 +176,10 @@ for n in range(numoyears):
     t_annuales : list
         lista de las fechas correspondientes a las alturas maximas annuales.
     '''
-    t_ini = datetime(AA[0] + n, 10, 1)  # Date(AA[0]+n,10,1). El ano empieza el 1 Octubre.
-    t_fin = datetime(AA[0] + n + 1, 10, 1)  # Date(AA[0]+n+1,10,1)
-    t_ultimo = datetime(AA[-1], MM[-1], DD[-1])  # Controlar que el ultimo ano sea completo. Por eso t_fin <= t_ultimo.
+    t_ini = datetime(df['fecha'].dt.year[0] + n, 10, 1)  # Date(AA[0]+n,10,1). El ano empieza el 1 Octubre.
+    t_fin = datetime(df['fecha'].dt.year[0] + n + 1, 10, 1)  # Date(AA[0]+n+1,10,1)
+    t_primero = df.fecha.values[0]  # Primer dia de medidas.
+    t_ultimo = df.fecha.tail(1).values[0]  # Controlar que el ultimo ano sea completo. Por eso t_fin <= t_ultimo.
     t_pico_ultimo = t_picos[-1]  # La fecha del ultimo pico
 
     '''
@@ -192,9 +207,9 @@ for n in range(numoyears):
     # * t >= t_ini
     # * t < t_fin
     # * t_fin <= t_ultimo -> Controlar que el ultimo ano sea completo.
-    mascara_booleana = (t >= t_ini) & (t < t_fin) & (t_fin <= t_ultimo)
+    mascara_booleana = (df.fecha >= t_ini) & (df.fecha < t_fin) & (t_ini >= t_primero) & (t_fin <= t_ultimo)
     # El indice es relativo a la mascara creada.
-    indice_max = Hm0[mascara_booleana].argmax()
+    indice_max = df.Hm0[mascara_booleana].argmax()
 
     # El indice absoluto es el relativo mas la suma de los indices anteriores
     indice_abs = indice_max + len(Hm0[t < t_ini])
@@ -270,12 +285,12 @@ fig, ax = plt.subplots()
 
 flag_box = False  # Se pone False por default. No comentar. Se utiliza en los textos del grafico ECDF.
 ######ELEGIR CUAL x UTILIZAR Y COMENTAR LAS OTRAS###########
-# x = H_annuales.copy()  # Para analizar los maximos annuales
+x = H_annuales.copy()  # Para analizar los maximos annuales
 # x = H_max_ann_rel.copy()  # Para analizar Maximos annuales y relativos sobre umbral.
 # x = H_picos[H_picos >= umbral_picos].copy()  # Para analizar todos los picos sobre el umbral
                                                # (no se consideran los maximos annuales abajo del umbral).
-x = Hm0.copy()  # Para hacer el analisis de regimen medio. Poner tambien flag_box = True
-flag_box = True  # Comentar si se hace el regimen extremal.
+# x = Hm0.copy()  # Para hacer el analisis de regimen medio. Poner tambien flag_box = True
+# flag_box = True  # Comentar si se hace el regimen extremal.
 ############################################################
 
 # Me hara falta el maximo de x para dimensionar los graficos (anchura del x_w).
@@ -382,8 +397,8 @@ Examples
 '''
 weibull_inv_il = interp1d(y_w, x_w)
 # Imprime a la pantalla el resultado.
-print("Con un umbral de {0}, curva de Weibull, se obtiene una altura de {1} m (interpolacion linear)"\
-      .format(umbral_wei, weibull_inv_il(1 - umbral_wei)))
+print("Con una probabilidad de NO EXCEDENCIA de {0}, curva de Weibull, se obtiene una altura de {1} m (interpolacion linear)"\
+      .format(umbral_exced_wei, weibull_inv_il(1 - umbral_exced_wei)))
 
 # Inversion de la funcion de Weibull (directamente de la formula )
 def weibull_inv(y):
@@ -402,12 +417,12 @@ def weibull_inv(y):
     '''
     x = scale_w * (-np.log(1 - y))**(1/shape_w) + loc_w
     return x
-print("Con un umbral de {0}, curva de Weibull, se obtiene una altura de {1} m (inversion formula)"\
-      .format(umbral_wei, weibull_inv(1-umbral_wei)))
+print("Con una probabilidad de NO EXCEDENCIA de {0}, curva de Weibull, se obtiene una altura de {1} m (inversion formula)"\
+      .format(umbral_exced_wei, weibull_inv(1-umbral_exced_wei)))
 
 # Aun no funciona: inversion con invweibull.cdf()
-# print("Con un umbral de {0}, curva de Weibull, se obtiene una altura de {1} m (inversion formula)".format(umbral_wei,\
-#       invweibull.cdf(1-umbral_wei, shape_w)))
+# print("Con una probabilidad de NO EXCEDENCIA de {0}, curva de Weibull, se obtiene una altura de {1} m (inversion formula)".format(umbral_exced_wei,\
+#       invweibull.cdf(1-umbral_exced_wei, shape_w)))
 
 
 # GEV
@@ -443,8 +458,8 @@ y_GEV = genextreme.cdf(x_GEV, c1, loc=loc1, scale=scale1)
 # Inversion de la funcion GEV (ver arriba para explicaciones)
 GEV_inv_il = interp1d(y_GEV, x_GEV)
 # Imprimir a la pantalla los resultados.
-print("Con un umbral de {0}, curva GEV, se obtiene una altura de {1} m"\
-      .format(umbral_GEV, GEV_inv_il(1 - umbral_GEV)))
+print("Con una probabilidad de NO EXCEDENCIA  de {0}, curva GEV, se obtiene una altura de {1} m"\
+      .format(umbral_exced_GEV, GEV_inv_il(1 - umbral_exced_GEV)))
 
 # Grafico de la CDF con GEV
 ax.plot(x_GEV, y_GEV, color="black", label="fitted CDF (GEV)")
@@ -490,6 +505,44 @@ plt.ylabel("# Ocurrencias")
 plt.legend(loc='center right')
 plt.show()
 
+# Hallar numero de dias en los cuales no se puede trabajar con la maquinaria.
+# Umbral sobre el cual no se puede trabajar propagado en profundidades indefinidas
+umbral_maquinaria0 = umbral_maquinaria / (K_R * K_s)
+# Buscar las alturas que estan sobre el umbral_maquinaria0 y ponerlas en H_sobre_umbral
+# Se consideran solo anios completos (que empieze el 1 octubre y termine el 30 septiembre).
+'''
+Analizo los casos posibiles:
+    * Fecha inicial. El anio ha que empezar el YYYY-10-01
+    Tengo 2 casos:
+        * La primera fecha es, p. ej., el 1958-01-05, que esta antes del 1958-10-01:
+        mi tiempo inicial sera el 1958-01-05, o sea, el AA[0]-10-1
+        * La primera fecha es, p. ej., el 1958-12-05, que esta despues del 1958-10-01:
+        mi tiempo inicial sera el anio despues, el 1959-10-01, que esta despues del 1958-10-01, o sea, AA[1]-10-1
+'''
+
+try:
+    t_ini_abs = t[t == datetime(AA[0], 10, 1)][0]
+    print(t[t == datetime(AA[0], 10, 1)])
+except:
+    t_ini_abs = t[t == datetime(AA[0]+1, 10, 1)][0]
+try:
+    t_fin_abs = t[t == datetime(AA[-1], 10, 1)][0]
+except:
+    t_fin_abs = t[t == datetime(AA[-1]-1, 10, 1)][0]
+
+H_sobre_umbral = Hm0[(Hm0 >= umbral_maquinaria0) & (t >= t_ini_abs) & (t < t_fin_abs)]
+# Numero de dias. En un dia hay 8 medidas (una cada 3 horas).
+N_dias = len(H_sobre_umbral)/8
+# Numero total de anios
+N_anios = t_fin_abs.year - t_ini_abs.year
+# Numero medio de dias al anio en los cuales no se puede trabajar.
+N_dias_no_trabajo = N_dias/N_anios
+
+print("Con un umbral de altura de trabajo de la maquinaria de  {2} m,\
+        \nel numero medio de dias al anio en los cuales no se puede trabajar es de {0}, o se el {1:.1f}%"\
+        .format(N_dias_no_trabajo, N_dias_no_trabajo/365.2425*100, umbral_maquinaria))
+
+
 # Diagrama Alturas - tiempo.
 # Grafico tiempo vs. altura de ola.
 plt.plot(t, Hm0)
@@ -500,6 +553,7 @@ plt.plot(t_picos[H_picos >= umbral_picos], H_picos[H_picos >= umbral_picos], 'go
 plt.plot(t_annuales, H_annuales, 'ro')
 plt.title("Maximos anuales detectados \n Altura significante - tiempo")
 plt.xlabel('Tiempo (s)')  # Etiqueta del eje x
+plt.xticks(rotation=30)  # Rotacion de 30 grados de las etiquetas del tiempo.
 plt.ylabel('H_s (m)')  # Etiqueta del eje y
 plt.grid()
 # Salva el grafico en la carpeta donde se trabaja en formato .pdf (se puede cambiar el formato).
