@@ -7,11 +7,11 @@ from scipy.fftpack import fft
 __author__ = "Riccardo Candeago, Ugr, E.T.S.I.C.C.P., aa. 2015/16"
 
 ### PARAMETROS A FIJAR ###
-umbral_alt = 0.05  # Probabilidad de EXCEDENCIA para fitting de Reileight a la CDF.
+umbral_exced_alt = 0.05  # Probabilidad de EXCEDENCIA para fitting de Reileight a la CDF.
 ##########################
 
 # Lectura archivo .dat y creacion array
-path = 'datos.dat'  # Path para el archivo .dat (en Windows, es del tipo 'C:/Users/User/Folder/Archivo.dat')
+path = 'datos.dat'  # Path para el archivo.dat
 # Se crea el array de datos
 datos = np.fromfile(path, sep="\n")
 '''
@@ -82,7 +82,6 @@ def crea_estado(eta, t, sensor):
     # Grafico tiempo vs. altura de ola con los cruces.
     tag = 'Elevaciones \nSensorWG%s' % (sensor)
     plt.plot(t, eta, label=tag)
-    # Imprime a pantalla SOLO los picos que sodisfan la relacion H_picos >= umbral_picos
     plt.plot(t_zero, np.full((len(t_zero), 1), 0), 'ro')
     plt.title("Elevaciones - tiempo \nSensorWG%s" % (sensor))
     plt.xlabel('Tiempo (s)')  # Etiqueta del eje x
@@ -162,7 +161,7 @@ def rayleight_cdf(x, Hs):
     Cumulative distribution funcion de Rayleight, hallada por integracion de la pdf.
 
     Es de la forma::
-        y = np.exp(-2 * (x/Hs)**2)
+        y = 1 - np.exp(-2 * (x/Hs)**2)
 
     Parameters
     ----------
@@ -175,7 +174,7 @@ def rayleight_cdf(x, Hs):
         y : float
             Cuantil o probabilidad de NO EXCEDENCIA correspondiente a la altura dada.
     '''
-    y = np.exp(-2 * (x/Hs)**2)
+    y = 1 - np.exp(-2 * (x/Hs)**2)
     return y
 
 # Inversa de la cdf de Rayleight
@@ -184,8 +183,7 @@ def rayleight_cdf_inv(y, Hs):
     Funcion inversa de la cdf de Rayleight
 
     Su formula es::
-        x = Hs * np.sqrt(-np.log(y)/2)
-
+        x = Hs * np.sqrt(-np.log(1 - y)/2)
     Parameters
     ----------
         y : float
@@ -195,9 +193,9 @@ def rayleight_cdf_inv(y, Hs):
     Returns
     __________
         x : float
-            Altura correspondiente al cuantil o probabilidad de NO EXCEDENCIA.
+            Altura correspondiente al cuantil o a la probabilidad de NO EXCEDENCIA.
     '''
-    x = Hs * np.sqrt(-np.log(y)/2)
+    x = Hs * np.sqrt(-np.log(1 - y)/2)
     return x
 
 
@@ -299,9 +297,8 @@ def analisis_estado(h, t, sensor):  # alturas, periodos
     print("--------------------")
 
     # Imprimir a pantalla la altura y el umbral de EXCEDENCIA.
-    print("Con un umbral de {0}, curva de Rayleight, se obtiene una altura de {1} m "\
-            .format(umbral_alt, rayleight_cdf_inv(1-umbral_alt, Hs)))
-
+    print("Con una probabilidad de EXCEDENCIA de {0}, curva de Rayleight, se obtiene una altura de {1} m "\
+            .format(umbral_exced_alt, rayleight_cdf_inv(1-umbral_exced_alt, Hs)))
 
     # Histograma de alturas.
     plt.hist(h)
