@@ -5,8 +5,36 @@ from scipy.interpolate import interp1d
 
 k = np.linspace(0.0001, 0.5, 600)
 g = 9.81
-h = 15
+h = 1
 sigma = 0.36
+umbral_alt = 0.95
+Hs = 13
+
+# Inversa de la cdf de Rayleight
+def rayleight_cdf_inv(y, Hs):
+    '''
+    Funcion inversa de la cdf de Rayleight
+
+    Su formula es::
+        x = Hs * np.sqrt(-np.log(y)/2)
+
+    Parameters
+    ----------
+        y : float
+            Cuantil o probabilidad de NO EXCEDENCIA.
+        Hs : float
+            Altura de ola significante.
+    Returns
+    __________
+        x : float
+            Altura correspondiente al cuantil o probabilidad de EXCEDENCIA.
+    '''
+    x = Hs * np.sqrt(-np.log(y)/2)
+    return x
+
+# Imprimir a pantalla la altura y el umbral de EXCEDENCIA.
+print("Con un umbral de {0}, curva de Rayleight, se obtiene una altura de {1} m "\
+        .format(umbral_alt, rayleight_cdf_inv(1-umbral_alt, Hs)))
 
 def k2s(k):
     s = (g*k*np.tanh(h*k))**(1/2)
