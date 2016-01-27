@@ -49,11 +49,50 @@ datos = np.fromfile(path, sep="\n")
 Ir a las líneas 23-27.
  * umbral_wei = 0.01 
   
- Probabilidad de EXCEDENCIA para ajuste de la función de Weibull a la acumulada de probabilidad. 
- En este caso es del 1%.
- * umbral_GEV = 0.01  # Probabilidad de EXCEDENCIA para fitting de GEV a la CDF.
- * umbral_picos = 5.  # Umbral sobre el cual los picos vienen representados en el grafico
+ Probabilidad de EXCEDENCIA para el ajuste de la función de Weibull a la acumulada de probabilidad.
 
+ En este caso es del 1%.
+ 
+ * umbral_GEV = 0.01  
+ 
+ Probabilidad de EXCEDENCIA para el ajuste de la GVE (generalizada vaolres extremos) a la acumulada de probabilidad..
+ * umbral_picos = 5.  
+ 
+ Umbral sobre el cual los picos (maximos relativos) vienen representados en el grafico, y que se utiliza en el analisis de maximos annuales + picos sobre umbral, o en el analisis de sólo los picos. 
+
+## Elegir tipo de analisis. 
+Ir a las líneas 272-279.
+Decomentar una y dejar las otras comentadas. 
+
+ 1. `x = H_annuales.copy()`  
+ 
+ Para analizar los maximos annuales.
+ 2. `x = H_max_ann_rel.copy()`  
+ 
+ Para analizar los maximos annuales y los picos relativos que están sobre el umbral.
+ 3. `x = H_picos[H_picos >= umbral_picos].copy()`  
+ 
+ Para analizar todos los picos sobre el umbral, sin considerar los maximos annuales abajo del umbral.
+ 4. `x = Hm0.copy()`  
+ 
+ Para hacer el analisis de regimen medio. Poner tambien `flag_box = True`: eso es necesario para que el texto en la primera figura no solape el gráfico.
+
+###Ejemplo
+Si quiero, por ejemplo, hacer el analisis extremal, pondré:
+
+```python
+######ELEGIR CUAL x UTILIZAR Y COMENTAR LAS OTRAS###########
+x = H_annuales.copy()  # Para analizar los maximos annuales
+# x = H_max_ann_rel.copy()  # Para analizar Maximos annuales y relativos sobre umbral.
+# x = H_picos[H_picos >= umbral_picos].copy()  # Para analizar todos los picos sobre el umbral
+                                               # (no se consideran los maximos annuales abajo del umbral).
+# x = Hm0.copy()  # Para hacer el analisis de regimen medio. Poner tambien flag_box = True
+# flag_box = True  # Comentar si se hace el regimen extremal.
+############################################################
+
+```
+
+Nota: Hay que hacer una copia con `.copy()` del vector de las alturas, porque si no lo hago, modifico el vector de las alturas mismo, y eso lo necesito integro más adelante en el código.
 
 # General description
 Here you can find some tools useful for:
