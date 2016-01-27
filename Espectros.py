@@ -96,6 +96,16 @@ plt.grid()
 plt.legend()
 plt.show()
 
+# TEST
+'''
+Una manera mas simple de hacer todo?
+[http://docs.scipy.org/doc/numpy/reference/routines.fft.html]
+'''
+A = fft(eta_1)
+Energy = np.abs(A)**2
+plt.plot(Energy)
+plt.show()
+
 def plot_espectro(En, sensor):
     '''
     Funcion que hace el grafico del espectro del correspondiente sensor.
