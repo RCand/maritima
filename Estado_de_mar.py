@@ -10,30 +10,6 @@ __author__ = "Riccardo Candeago, Ugr, E.T.S.I.C.C.P., aa. 2015/16"
 umbral_exced_alt = 0.05  # Probabilidad de EXCEDENCIA para fitting de Reileight a la CDF.
 ##########################
 
-# Lectura archivo .dat y creacion array
-path = 'datos.dat'  # Path para el archivo.dat
-# Se crea el array de datos
-datos = np.fromfile(path, sep="\n")
-'''
-Para crear el array con el que se trabajará, se utiliza np.fromfile(file, dtype=float, count=-1, sep='').
-Ya tenemos el *file*, que es dado del path, el *dtype* en este caso es ya *float* por default (numeros reales),
-*count* es -1 por default, en el sentido que carga hasta el indice -1 (o sea el ultimo),
-el *sep* es el separador, en este caso "\n", el "línea nueva".
-'''
-
-t = datos[0::4]  # Vector de los tiempos de medidura
-eta_1_sin_alfa = datos[1::4]  # Vector de las elevaciones del sensor 1
-eta_2_sin_alfa = datos[2::4]
-eta_3_sin_alfa = datos[3::4]
-
-# Factor alfa
-alfa = ((23+16+16+9+27)/5)**(1/7)
-
-# Multiplicamos por alfa
-eta_1 = alfa * eta_1_sin_alfa
-eta_2 = alfa * eta_2_sin_alfa
-eta_3 = alfa * eta_3_sin_alfa
-
 def crea_estado(eta, t, sensor):
     '''
     Dada una serie temporal de elevaiones, esta funcion crea el estado de mar.
@@ -128,10 +104,6 @@ def crea_estado(eta, t, sensor):
     T = np.array(T)
 
     return h, T
-
-h_1, T_1 = crea_estado(eta_1, t, 1)
-h_2, T_2 = crea_estado(eta_2, t, 2)
-h_3, T_3 = crea_estado(eta_3, t, 3)
 
 # pdf de Rayleight
 def rayleight_pdf(x, Hs):
@@ -338,6 +310,37 @@ def analisis_estado(h, t, sensor):  # alturas, periodos
     plt.savefig(fig_name_sigma)
     plt.show()
 
-analisis_estado(h_1, T_1, 1)
-analisis_estado(h_2, T_2, 2)
-analisis_estado(h_3, T_3, 3)
+if __name__ == '__main__':
+    # Lectura archivo .dat y creacion array
+    path = 'datos.dat'  # Path para el archivo.dat
+    # Se crea el array de datos
+    datos = np.fromfile(path, sep="\n")
+    '''
+    Para crear el array con el que se trabajará, se utiliza np.fromfile(file, dtype=float, count=-1, sep='').
+    Ya tenemos el *file*, que es dado del path, el *dtype* en este caso es ya *float* por default (numeros reales),
+    *count* es -1 por default, en el sentido que carga hasta el indice -1 (o sea el ultimo),
+    el *sep* es el separador, en este caso "\n", el "línea nueva".
+    '''
+
+    t = datos[0::4]  # Vector de los tiempos de medidura
+    eta_1_sin_alfa = datos[1::4]  # Vector de las elevaciones del sensor 1
+    eta_2_sin_alfa = datos[2::4]
+    eta_3_sin_alfa = datos[3::4]
+
+    # Factor alfa
+    alfa = ((23+16+16+9+27)/5)**(1/7)
+
+    # Multiplicamos por alfa
+    eta_1 = alfa * eta_1_sin_alfa
+    eta_2 = alfa * eta_2_sin_alfa
+    eta_3 = alfa * eta_3_sin_alfa
+
+    # Creacion estados de mar
+    h_1, T_1 = crea_estado(eta_1, t, 1)
+    h_2, T_2 = crea_estado(eta_2, t, 2)
+    h_3, T_3 = crea_estado(eta_3, t, 3)
+
+    # Analisis de los estados de mar
+    analisis_estado(h_1, T_1, 1)
+    analisis_estado(h_2, T_2, 2)
+    analisis_estado(h_3, T_3, 3)
