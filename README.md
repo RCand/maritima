@@ -1,4 +1,6 @@
 [Documentation link](maritima.readthedocs.org)
+(not working yet).
+
 # ENGLISH VERSION BELOW
 # Descripción general
 Hay aquí unas herramientas utiles para:
@@ -9,6 +11,7 @@ Hay aquí unas herramientas utiles para:
 
 Estas herramientas han sido desarolladas a lo largo del curso de Ingeniería Marítima y Costera en la E.T.S.I.C.C.P. en la Universidad de Granada, en el año académico 2015/16.
 
+El código ha sido desarrolado con Python3. 
 ## Descargar git
 Es necesario tener git para instalar los requirements.txt. Si hace falta, descargarlo aquí:
 [http://git-scm.com/downloads]
@@ -31,6 +34,8 @@ $ pip3 install -r requirements.txt
 ``` 
 
 ## Inserir datos y parametros
+Hay que eliminar el *header* en el archivo que contiene los datos. La primera línea tiene que coincidir con el primer dato (no líneas blancas).
+
 Para inerir los datos, hay que poner el archivo .dat en la misma carpeta donde hay el programa y poner el path como sigue:
 ```python
 # Lectura archivo .dat y creacion array
@@ -104,6 +109,7 @@ Here you can find some tools useful for:
 
 These tools were developped during the Sea and Costal Engineering course at the E.T.S.I.C.C.P. in the University of Granada, during the academic year 2015/16.
 
+The code was developped with Python3.
 ## Git download.
 git is necessary to install requirements.txt. If you don't have it, download it here:
 [http://git-scm.com/downloads]
@@ -126,6 +132,8 @@ $ pip3 install -r requirements.txt
 ``` 
 
 ## Insert data and parameters 
+The header of the file containing the data must be erased. The first line has to be the one with the data (no blank lines).
+
 In order to insert the data, you have to put the .dat file in the same folder where the .py program is and write the path as follows: 
 ```python
 # File .dat reading and array creation
@@ -140,5 +148,4 @@ path = 'C:/Users/User/Folder/Archivo.dat'
 datos = np.fromfile(path, sep="\n")
 ```
 
-# Extreme Values Analysis 
-
+# Extreme Values Analysis
